@@ -30,10 +30,12 @@ jobs:
             echo "ENV_NAME=production" >> $GITHUB_ENV
             echo "GCP_PROJECT_ID=vw-arg" >> $GITHUB_ENV
             echo "SERVICE_NAME=vw-backend-prod" >> $GITHUB_ENV
+            echo "REGION=us-central1" >> $GITHUB_ENV
           else
             echo "ENV_NAME=development" >> $GITHUB_ENV
             echo "GCP_PROJECT_ID=dev-vw-arg" >> $GITHUB_ENV
             echo "SERVICE_NAME=vw-backend-qa" >> $GITHUB_ENV
+            echo "REGION=us-central1" >> $GITHUB_ENV
           fi
 
       # Autenticación con Google Cloud (Prod o QA según rama)
@@ -51,15 +53,15 @@ jobs:
       - name: Build and Push Container
         run: |
           # Construimos desde el ROOT del monorepo usando el Dockerfile del backend
-          docker build -f apps/backend/Dockerfile -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
-          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          docker build -f apps/backend/Dockerfile -t gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+          docker push gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
       - name: Deploy to Cloud Run
         uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
           service: ${{ env.SERVICE_NAME }}
-          region: ${{ env.REGION }}
-          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          region: ${{ env.REGION }} # Nota: REGION no se definió dinámicamente, usará el global o default si existe
+          image: gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           env_vars: |
              NODE_ENV=production
-             GCP_PROJECT_ID=${{ env.PROJECT_ID }}
+             GCP_PROJECT_ID=${{ env.GCP_PROJECT_ID }}
