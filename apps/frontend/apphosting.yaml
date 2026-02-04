@@ -1,0 +1,15 @@
+# Settings for Firebase App Hosting
+# https://firebase.google.com/docs/app-hosting/configure
+
+# Service ID (Backend identification in Firebase Console)
+serviceId: vw-cms-frontend
+
+# Root directory of the Next.js application
+rootDirectory: apps/frontend
+
+# Environment variables
+env:
+  - variable: NEXT_PUBLIC_API_URL
+    value: https://api.vw-backend.run.app # URL del Backend (Cloud Run)
+  - variable: FIREBASE_PROJECT_ID
+    value: vw-arg
